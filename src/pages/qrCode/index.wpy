@@ -1,0 +1,133 @@
+<template>
+<view>
+  <view class="container" wx:if="{{curLanguage == 'Chinese'}}">
+    <!-- <view class='language'>
+      切换语言：
+      <view class='selectBlock'>
+        <Select id="select"/>
+      </view>
+    </view> -->
+    <view class="CodeInfo">
+      <view class="TitBar">
+        <text>18234567890</text>
+        <image style="width: 100rpx; height: 100rpx; border-radius: 50%;" mode="scaleToFill" src="{{avatarUrl}}"></image>
+      </view>
+      <text class="Tips">扫描下方的二维码开始投递</text>
+      <image style="width: 300rpx; height: 300rpx;" mode="scaleToFill" src="../../images/code.png"></image>
+    </view>  
+  </view>
+  <view class="container" wx:if="{{curLanguage == 'English'}}">
+    <!-- <view class='language'>
+      Choice language：
+      <view class='selectBlock'>
+        <Select id="select"/>
+      </view>
+    </view> -->
+    <view class="CodeInfo">
+      <view class="TitBar">
+        <text>18234567890</text>
+        <image style="width: 100rpx; height: 100rpx; border-radius: 50%;" mode="scaleToFill" src="{{avatarUrl}}"></image>
+      </view>
+      <text class="Tips">Scan the QR code below to start delivery</text>
+      <image style="width: 300rpx; height: 300rpx;" mode="scaleToFill" src="../../images/code.png"></image>
+    </view>  
+  </view>
+</view>
+</template>
+<script>
+import wepy from 'wepy'
+import { connect } from 'wepy-redux'
+import Select from '@/components/select'
+@connect({
+  curLanguage (state) {
+    return state.changeLanguage.curLanguage.name
+  }
+}, {})
+export default class QrCode extends wepy.page {
+  config = {
+    navigationBarTitleText: ''
+  }
+  components = {
+    Select: Select
+  }
+  computed  = {
+    avatarUrl () {
+      return this.$parent.globalData.userInfo.avatarUrl
+    }
+  }
+  onShow () {
+    if (this.curLanguage === 'Chinese') {
+      wepy.setNavigationBarTitle({
+        title:"我的投放码"
+      })
+    } else {
+      wepy.setNavigationBarTitle({
+        title:"My launch code"
+      })
+    }
+  }
+  watch = {
+    curLanguage (newValue, oldValue) {
+      if (newValue === 'Chinese') {
+        wepy.setNavigationBarTitle({
+          title:"我的投放码"
+        })
+      } else {
+        wepy.setNavigationBarTitle({
+          title:"My launch code"
+        })
+      }
+    }
+  }
+
+  methods = {
+  }
+}
+</script>
+<style>
+page {
+  /*background-color: #f5f5f5;*/
+}
+.language{
+  width: 100%;
+  height: 70rpx;
+  line-height: 70rpx;
+  background: #fff;
+  display: flex;
+  justify-content: flex-end;
+  font-size: 30rpx;
+}
+.selectBlock{
+  width: 80px;
+  height: 100%;
+}
+.CodeInfo{
+  width: 62%;
+  height: 700rpx;
+  background: #fff;
+  margin: 0 auto;
+  border: 1px solid #ebeef5;
+  box-shadow: 5px 5px 12px 0 rgba(0,0,0,.3);
+  border-radius: 10rpx;
+  padding: 20rpx 35rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+.TitBar{
+  width: 100%;
+  height: 150rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #efefef;
+  font-size: 32rpx;
+}
+.Tips{
+  font-size: 32rpx;
+  height: 120rpx;
+  padding-top: 40rpx;
+  /*margin-bottom: 50rpx;*/
+}
+</style>

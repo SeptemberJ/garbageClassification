@@ -1,0 +1,180 @@
+<template>
+<view>
+  <view wx:if="{{curLanguage == 'Chinese'}}" class="container">
+    <view class="AddressList">
+      <view class="EmptyBlock" wx:if="{{addressList.length == 0}}">
+        <image src="../../../images/box-empty.png"></image>
+        <text>您还未添加任何地址</text>
+      </view>
+      <view class="Address" wx:if="{{addressList.length > 0}}">
+        <view class="AddressItem" wx:for="{{addressList}}" wx:key="{{index}}">
+          <text>张三 18234567890</text>
+          <text style="color: #515151;">上海市宝山区丰宝苑锦秋路1600号</text>
+          <view class="EditBlock">
+            <view class="EditItem">
+              <image src="../../../images/editor-line.png"></image>
+            编辑
+            </view>
+            <view class="EditItem">
+              <image src="../../../images/delete.png"></image>
+            删除
+            </view>
+          </view>
+        </view>
+      </view>
+      <view class="AddBlock" @tap="toAdd">新增地址</view>
+    </view>
+  </view>
+  <view wx:if="{{curLanguage == 'English'}}" class="container">
+    <view class="AddressList">
+      <view class="EmptyBlock" wx:if="{{addressList.length == 0}}">
+        <image src="../../../images/box-empty.png"></image>
+        <text>You haven't added any addresses yet</text>
+      </view>
+      <view class="Address" wx:if="{{addressList.length > 0}}">
+        <view class="AddressItem" wx:for="{{addressList}}" wx:key="{{index}}">
+          <text>Pamela 18234567890</text>
+          <text style="color: #515151;">xxxxxxxxxxxxxxxxxx</text>
+          <view class="EditBlock">
+            <view class="EditItem">
+              <image src="../../../images/editor-line.png"></image>
+            Edit
+            </view>
+            <view class="EditItem">
+              <image src="../../../images/delete.png"></image>
+            Delete
+            </view>
+          </view>
+        </view>
+      </view>
+      <view class="AddBlock" @tap="toAdd">Add</view>
+    </view>
+  </view>
+</view>
+</template>
+<script>
+import wepy from 'wepy'
+import { connect } from 'wepy-redux'
+@connect({
+  curLanguage (state) {
+    return state.changeLanguage.curLanguage.name
+  }
+}, {})
+export default class Address extends wepy.page {
+  config = {
+    navigationBarTitleText: ''
+  }
+  data = {
+    addressList: [1, 2]
+  }
+  onShow () {
+    if (this.curLanguage === 'Chinese') {
+      wepy.setNavigationBarTitle({
+        title:"我的地址"
+      })
+    } else {
+      wepy.setNavigationBarTitle({
+        title:"My address"
+      })
+    }
+  }
+  watch = {
+    curLanguage (newValue, oldValue) {
+      if (newValue === 'Chinese') {
+        wepy.setNavigationBarTitle({
+          title:"我的地址"
+        })
+      } else {
+        wepy.setNavigationBarTitle({
+          title:"My address"
+        })
+      }
+    }
+  }
+  methods = {
+    toAdd () {
+      wepy.navigateTo({
+        url: '../address/addAddress'
+      })
+    }
+  }
+}
+</script>
+<style>
+page {
+  background-color: #f5f5f5;
+}
+.AddressList{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.Address{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+.AddressItem{
+  width: 100%;
+  height: 240;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  background: #fff;
+  margin-bottom: 40rpx;
+}
+.AddressItem text{
+  height: 70rpx;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 40rpx;
+}
+.EditBlock{
+  width: 100%;
+  height: 80rpx;
+  margin-top: 20rpx;
+  display: flex;
+  border-top: 1px solid #efefef;
+  justify-content: space-between;
+  align-items: center;
+}
+.EditItem{
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  font-size: 32rpx;
+  padding: 0 40rpx;
+  color: #515151;
+}
+.EditItem image{
+  width: 50rpx;
+  height: 50rpx;
+  margin: 0 10rpx;
+}
+.EmptyBlock text{
+  color: #515151;
+}
+.EmptyBlock image{
+  width:150rpx;
+  height:150rpx;
+  margin: 80rpx auto 0 auto;
+  display:block;
+}
+.AddBlock{
+  width: 100%;
+  height: 80rpx;
+  background: #1296db;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  margin-top: 90rpx;
+}
+</style>

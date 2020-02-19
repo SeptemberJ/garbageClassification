@@ -1,0 +1,231 @@
+<template>
+<view>
+  <view wx:if="{{curLanguage == 'Chinese'}}" class="container">
+    <!-- <view class='language'>
+      切换语言：
+      <view class='selectBlock'>
+        <Select id="select"/>
+      </view>
+    </view> -->
+    <view class="UserInfo">
+      <image style="width: 100rpx; height: 100rpx; border-radius: 50%;" mode="scaleToFill" src="{{avatarUrl}}"></image>
+      <text class="PhoneBlock">18234567890</text>
+    </view>
+    <view class="Lists">
+      <view class='itemBar' @tap="toAddress">
+        <view class="RightTxt">
+          <image src="../../../images/address.png"></image>
+            <text>我的地址</text>
+        </view>
+        <image src="../../../images/arrow-right.png"></image>
+      </view>
+      <view class='itemBar' @tap="toAboutUs">
+        <view class="RightTxt">
+          <image src="../../../images/attention.png"></image>
+            <text>关于我们</text>
+        </view>
+        <image src="../../../images/arrow-right.png"></image>
+      </view>
+      <view class='itemBar' @tap="toSetting">
+        <view class="RightTxt">
+          <image src="../../../images/setting.png"></image>
+            <text>设置</text>
+        </view>
+        <image src="../../../images/arrow-right.png"></image>
+      </view>
+    </view>
+    <!-- <button open-type="getUserInfo">123</button> -->
+    <!-- <button open-type="getPhoneNumber" bindgetphonenumber="getPhoneNumber">获取手机号</button> -->
+  </view>
+  <view wx:if="{{curLanguage == 'English'}}" class="container">
+    <!-- <view class='language'>
+      Choice language：
+      <view class='selectBlock'>
+        <Select id="select"/>
+      </view>
+    </view> -->
+    <view class="UserInfo">
+      <image style="width: 100rpx; height: 100rpx; border-radius: 50%;" mode="scaleToFill" src="{{avatarUrl}}"></image>
+      <text class="PhoneBlock">18234567890</text>
+    </view>
+    <view class="Lists">
+      <view class='itemBar' @tap="toAddress">
+        <view class="RightTxt">
+          <image src="../../../images/address.png"></image>
+            <text>Address</text>
+        </view>
+        <image src="../../../images/arrow-right.png"></image>
+      </view>
+      <view class='itemBar' @tap="toAboutUs">
+        <view class="RightTxt">
+          <image src="../../../images/attention.png"></image>
+            <text>About Us</text>
+        </view>
+        <image src="../../../images/arrow-right.png"></image>
+      </view>
+      <view class='itemBar' @tap="toSetting">
+        <view class="RightTxt">
+          <image src="../../../images/setting.png"></image>
+            <text>Setting</text>
+        </view>
+        <image src="../../../images/arrow-right.png"></image>
+      </view>
+    </view>
+  </view>
+</view>
+</template>
+<script>
+import wepy from 'wepy'
+import { connect } from 'wepy-redux'
+import Select from '@/components/select'
+@connect({
+  curLanguage (state) {
+    return state.changeLanguage.curLanguage.name
+  }
+}, {})
+export default class MyIndex extends wepy.page {
+  config = {
+    navigationBarTitleText: ''
+  }
+  components = {
+    Select: Select
+  }
+  computed  = {
+    avatarUrl () {
+      return this.$parent.globalData.userInfo.avatarUrl
+    }
+  }
+  onShow () {
+    if (this.curLanguage === 'Chinese') {
+      wepy.setNavigationBarTitle({
+        title:"个人中心"
+      })
+    } else {
+      wepy.setNavigationBarTitle({
+        title:"Personal Center"
+      })
+    }
+  }
+  watch = {
+    curLanguage (newValue, oldValue) {
+      if (newValue === 'Chinese') {
+        wepy.setNavigationBarTitle({
+          title:"个人中心"
+        })
+      } else {
+        wepy.setNavigationBarTitle({
+          title:"Personal Center"
+        })
+      }
+    }
+  }
+  onLoad (options) {
+  }
+
+  methods = {
+    toAddress () {
+      wepy.navigateTo({
+        url: '../address/index'
+      })
+    },
+    toAboutUs () {
+      wepy.navigateTo({
+        url: '../aboutUs/index'
+      })
+    },
+    toSetting () {
+      // wepy.navigateTo({
+      //   url: '../address/index'
+      // })
+    },
+    getPhoneNumber: (e) => {
+      // var that = this;
+      console.log(e.detail)
+      console.log(e.detail.errMsg == "getPhoneNumber:ok");
+      // if (e.detail.errMsg == "getPhoneNumber:ok") {
+      //   wx.request({
+      //     url: '服务器获取手机号/users/decodePhone',服务器获取手机号
+      //     data: {
+      //       encryptedData: e.detail.encryptedData,
+      //       iv: e.detail.iv,
+      //       sessionKey: this.$parent.globalData.session_key,
+      //       uid: "",
+      //     },
+      //     method: "post",
+      //     success: (res) => {
+      //       console.log(res)
+      //     }
+      //   })
+      // }
+    }
+  }
+}
+</script>
+<style>
+page {
+  background-color: #f5f5f5;
+}
+.language{
+  width: 100%;
+  height: 70rpx;
+  line-height: 70rpx;
+  background: #fff;
+  display: flex;
+  justify-content: flex-end;
+  font-size: 30rpx;
+}
+.selectBlock{
+  width: 80px;
+  height: 100%;
+}
+.UserInfo{
+  width: 100%;
+  height: 150rpx;
+  padding: 0 20rpx;
+  display: flex;
+  align-items: center;
+  background: #fff;
+}
+.PhoneBlock{
+  width: 200rpx;
+  padding-left: 20rpx;
+  font-size: 30rpx;
+}
+.Lists{
+  width: 100%;
+  margin-top: 40rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  background: #fff;
+}
+.itemBar{
+  width: calc(100% - 40rpx);
+  height:100rpx;
+  padding: 0 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border-bottom: 1px solid #efefef;
+}
+.RightTxt{
+  display: flex;
+  align-items: center;
+}
+.itemBar text{
+  font-size: 30rpx;
+  /*font-weight: bold;*/
+  color: #515151;
+}
+.itemBar image{
+  width: 50rpx;
+  height: 50rpx;
+}
+.RightTxt image{
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 10rpx;
+}
+</style>

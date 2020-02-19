@@ -1,0 +1,197 @@
+<template>
+<view>
+  <view wx:if="{{curLanguage == 'Chinese'}}" class="container">
+    <view class='language'>
+      切换语言：
+      <view class='selectBlock'>
+        <Select id="select"/>
+      </view>
+    </view>
+    <view class="SignBlock">
+      <text class="Slogan">欢迎注册垃圾分类小程序</text>
+      <view class="InputItem">
+        <text>姓名</text>
+        <input class="weui-input" placeholder="请输入姓名" @input='changeName' value='{{userName}}'/>
+      </view>
+      <view class="InputItem">
+        <text>手机号</text>
+        <input class="weui-input" placeholder="请输入手机号" @input='changePhone' value='{{phone}}'/>
+      </view>
+      <button open-type="getUserInfo" bindgetuserinfo='bindGetUserInfo' style="background:#1296db;font-size:32rpx;color:#fff;border-radius:0;margin-top:80rpx;">注册</button>
+    </view>
+  </view>
+  <view wx:if="{{curLanguage == 'English'}}" class="container">
+    <view class='language'>
+      Choice language：
+      <view class='selectBlock'>
+        <Select id="select"/>
+      </view>
+    </view>
+    <view class="SignBlock">
+      <text class="Slogan">Welcome</text>
+      <view class="InputItem">
+        <text>Name</text>
+        <input class="weui-input" placeholder="Please enter a name" @input='changeName' value='{{userName}}'/>
+      </view>
+      <view class="InputItem">
+        <text>Phone</text>
+        <input class="weui-input" placeholder="Please enter your mobile number" @input='changePhone' value='{{phone}}'/>
+      </view>
+      <button open-type="getUserInfo" bindgetuserinfo='bindGetUserInfo' style="background:#1296db;font-size:32rpx;color:#fff;border-radius:0;margin-top:80rpx;">sign up</button>
+    </view>
+  </view>
+  <toast />
+</view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import Toast from 'wepy-com-toast'
+  import { connect } from 'wepy-redux'
+  import Select from '@/components/select'
+  import testMixin from '../mixins/test'
+  @connect({
+    curLanguage (state) {
+      return state.changeLanguage.curLanguage.name
+    }
+  }, {})
+
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: ''
+    }
+    data = {
+      userName: '',
+      phone: ''
+    }
+    components = {
+      Select: Select,
+      toast: Toast
+    }
+
+    mixins = [testMixin]
+
+    onShow () {
+      if (this.$parent.globalData.ifSigned) {
+        wepy.navigateTo({
+          url: './index/index'
+        })
+      } else {
+        if (this.curLanguage === 'Chinese') {
+          wepy.setNavigationBarTitle({
+            title:"注册"
+          })
+        } else {
+          wepy.setNavigationBarTitle({
+            title:"Sign"
+          })
+        }
+      }
+    }
+    watch = {
+      curLanguage (newValue, oldValue) {
+        if (newValue === 'Chinese') {
+          wepy.setNavigationBarTitle({
+            title:"注册"
+          })
+        } else {
+          wepy.setNavigationBarTitle({
+            title:"Sign"
+          })
+        }
+      }
+    }
+
+    methods = {
+      changeName (e) {
+        this.userName = e.detail.value
+        this.$apply()
+      },
+      changePhone (e) {
+        this.userName = e.detail.value
+        this.$apply()
+      },
+      bindGetUserInfo (res) {
+        console.log(res)
+        wepy.switchTab({
+          url: './index/index'
+        })
+        // if (res.detail.errMsg === 'getUserInfo:ok') {
+        //   // 注册
+        //   if (!this.userName || !this.phone) {
+        //     this.$invoke('toast', 'show', {
+        //       title: this.curLanguage === 'Chinese' ? '请将信息填写完整!' : 'Please complete the information!',
+        //       img: '../images/attentionW.png'
+        //     })
+        //   }
+        //   wepy.request({
+        //     url: 'https://www.madcoder.cn/tests/sleep.php',
+        //     method: 'POST',
+        //     data: {name: 'lily'},
+        //     success: (res) => {
+        //       console.log(res.data)
+        //       // self.$apply()
+        //     },
+        //     fali: (res) => {
+        //       console.log(res)
+        //     }
+        //   })
+        // } else {
+        //   console.log('fail')
+        //   this.$invoke('toast', 'show', {
+        //     title: this.curLanguage === 'Chinese' ? '为了更好的使用请先同意授权信息!' : 'For better use, please agree to the authorization information first!',
+        //     img: '../images/attentionW.png'
+        //   })
+        // }
+      }
+    }
+
+    onLoad() {
+    }
+  }
+</script>
+<style>
+.language{
+  width: 100%;
+  height: 70rpx;
+  line-height: 70rpx;
+  background: #fff;
+  display: flex;
+  justify-content: flex-end;
+  font-size: 30rpx;
+}
+.selectBlock{
+  width: 80px;
+  height: 100%;
+}
+.SignBlock{
+  width: 100%;
+  margin-top: 40rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.Slogan{
+  width: 100%；
+  height: 100rpx;
+  line-height: 100rpx;
+  font-size: 36rpx;
+  text-align: center;
+  margin-bottom: 40rpx;
+}
+.InputItem{
+  width: calc(100% - 80rpx);
+  padding: 0 40rpx;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.InputItem text{
+  width: 200rpx;
+}
+.InputItem input{
+  width: calc(100% - 200rpx);
+  text-align: right;
+}
+</style>
