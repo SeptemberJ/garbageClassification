@@ -76,13 +76,14 @@ export default class Order extends wepy.page {
     navigationBarTitleText: ''
   }
   data = {
-    orderType: 0,
-    orderList: [1, 2]
+    orderType: 0, // 1进行中，2已完成，3交易取消
+    orderList: []
   }
   components = {
     Select: Select
   }
   onShow () {
+    this.getOrderList()
     if (this.curLanguage === 'Chinese') {
       wepy.setNavigationBarTitle({
         title:"我的订单"
@@ -113,6 +114,19 @@ export default class Order extends wepy.page {
     changeTab (type) {
       this.orderType = type
     }
+  }
+
+  getOrderList () {
+    wepy.request({
+      url: this.$parent.globalData.qrurl + '/orderlist?userid=' + this.$parent.globalData.openid + '&ftype=' + (this.orderType + 1),
+      data: {},
+      header: {
+        'content-type': 'application/json'
+      },
+      success: (res) => {
+        this.orderList = res.data.list
+      }
+    })
   }
 }
 </script>

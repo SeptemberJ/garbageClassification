@@ -9,15 +9,16 @@
     </view>
     <view class="SignBlock">
       <text class="Slogan">欢迎注册垃圾分类小程序</text>
-      <view class="InputItem">
+      <!-- <view class="InputItem">
         <text>姓名</text>
         <input class="weui-input" placeholder="请输入姓名" @input='changeName' value='{{userName}}'/>
       </view>
       <view class="InputItem">
         <text>手机号</text>
         <input class="weui-input" placeholder="请输入手机号" @input='changePhone' value='{{phone}}'/>
-      </view>
-      <button open-type="getUserInfo" bindgetuserinfo='bindGetUserInfo' style="background:#1296db;font-size:32rpx;color:#fff;border-radius:0;margin-top:80rpx;">注册</button>
+      </view> -->
+      <button open-type="getPhoneNumber" bindgetphonenumber="getPhoneNumber" style="background:#1296db;font-size:32rpx;color:#fff;border-radius:0;margin-top:80rpx;">微信快捷注册</button>
+      <!-- <button open-type="getUserInfo" bindgetuserinfo='bindGetUserInfo' style="background:#1296db;font-size:32rpx;color:#fff;border-radius:0;margin-top:80rpx;">微信快捷注册</button> -->
     </view>
   </view>
   <view wx:if="{{curLanguage == 'English'}}" class="container">
@@ -29,14 +30,14 @@
     </view>
     <view class="SignBlock">
       <text class="Slogan">Welcome</text>
-      <view class="InputItem">
+      <!-- <view class="InputItem">
         <text>Name</text>
         <input class="weui-input" placeholder="Please enter a name" @input='changeName' value='{{userName}}'/>
       </view>
       <view class="InputItem">
         <text>Phone</text>
         <input class="weui-input" placeholder="Please enter your mobile number" @input='changePhone' value='{{phone}}'/>
-      </view>
+      </view> -->
       <button open-type="getUserInfo" bindgetuserinfo='bindGetUserInfo' style="background:#1296db;font-size:32rpx;color:#fff;border-radius:0;margin-top:80rpx;">sign up</button>
     </view>
   </view>
@@ -72,21 +73,7 @@
     mixins = [testMixin]
 
     onShow () {
-      if (this.$parent.globalData.ifSigned) {
-        wepy.navigateTo({
-          url: './index/index'
-        })
-      } else {
-        if (this.curLanguage === 'Chinese') {
-          wepy.setNavigationBarTitle({
-            title:"注册"
-          })
-        } else {
-          wepy.setNavigationBarTitle({
-            title:"Sign"
-          })
-        }
-      }
+      this.login()
     }
     watch = {
       curLanguage (newValue, oldValue) {
@@ -111,39 +98,78 @@
         this.userName = e.detail.value
         this.$apply()
       },
-      bindGetUserInfo (res) {
+      getPhoneNumber (res) {
         console.log(res)
-        wepy.switchTab({
-          url: './index/index'
-        })
-        // if (res.detail.errMsg === 'getUserInfo:ok') {
-        //   // 注册
-        //   if (!this.userName || !this.phone) {
-        //     this.$invoke('toast', 'show', {
-        //       title: this.curLanguage === 'Chinese' ? '请将信息填写完整!' : 'Please complete the information!',
-        //       img: '../images/attentionW.png'
-        //     })
-        //   }
-        //   wepy.request({
-        //     url: 'https://www.madcoder.cn/tests/sleep.php',
-        //     method: 'POST',
-        //     data: {name: 'lily'},
-        //     success: (res) => {
-        //       console.log(res.data)
-        //       // self.$apply()
-        //     },
-        //     fali: (res) => {
-        //       console.log(res)
-        //     }
-        //   })
-        // } else {
-        //   console.log('fail')
-        //   this.$invoke('toast', 'show', {
-        //     title: this.curLanguage === 'Chinese' ? '为了更好的使用请先同意授权信息!' : 'For better use, please agree to the authorization information first!',
-        //     img: '../images/attentionW.png'
-        //   })
-        // }
+        if (res.detail.errMsg === 'getPhoneNumber:ok') {
+          wepy.request({
+            url: this.$parent.globalData.qrurl + '/getAuthPhone?encryptedData=' + res.detail.encryptedData + '&iv=' + res.detail.iv + '&session_key=' + this.$parent.globalData.session_key,
+            data: {},
+            success: (res) => {
+              console.log(res.data)
+              // self.$apply()
+            },
+            fali: (res) => {
+              console.log(res)
+            }
+          })
+          // 注册
+          // wepy.request({
+          //   url: this.$parent.globalData.qrurl + '/userinsert',
+          //   method: 'POST',
+          //   data: {nickname: this.$parent.globalData.userInfo., head_img: '', fmobile: '', open_id: this.$parent.globalData.openid},
+          //   success: (res) => {
+          //     console.log(res.data)
+          //     // self.$apply()
+          //   },
+          //   fali: (res) => {
+          //     console.log(res)
+          //   }
+          // })
+        } else {
+          console.log('fail')
+          this.$invoke('toast', 'show', {
+            title: this.curLanguage === 'Chinese' ? '为了更好的使用请先同意授权信息!' : 'For better use, please agree to the authorization information first!',
+            img: '../images/attentionW.png'
+          })
+        }
       }
+    }
+    login () {
+      let _this = this
+      wepy.login({
+       success: (res) => {
+          const code = res.code
+          // console.log(code)
+          // 发送请求获取opendId
+          wepy.request({
+            url: this.$parent.globalData.qrurl + '/getOpen_id?code=' + code,
+            data: {},
+            header: {
+              'content-type': 'application/json'
+            },
+            success: (res) => {
+              console.log(res.data.session_key)
+              _this.$parent.globalData.openid = res.data.openid
+              _this.$parent.globalData.session_key = res.data.session_key
+              if (res.data.code == 0) {
+                wepy.switchTab({
+                  url: './index/index'
+                })
+              } else {
+                if (this.curLanguage === 'Chinese') {
+                  wepy.setNavigationBarTitle({
+                    title:"注册"
+                  })
+                } else {
+                  wepy.setNavigationBarTitle({
+                    title:"Sign"
+                  })
+                }
+              }
+            }
+          })
+        }
+      })
     }
 
     onLoad() {

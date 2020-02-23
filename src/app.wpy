@@ -18,6 +18,8 @@ export default class extends wepy.app {
       'pages/my/aboutUs/index',
       'pages/order/index',
       'pages/qrCode/index',
+      'pages/points/index',
+      'pages/delivery/index',
       'pages/my/index/index'
     ],
     window: {
@@ -62,8 +64,10 @@ export default class extends wepy.app {
 
   globalData = {
     userInfo: null,
-    ifSigned: false,
-    session_key: null
+    openid: null,
+    ifSigned: false, // 0 - 没有注册 1 - 注册过
+    session_key: null,
+    qrurl: 'http://111.231.134.126:8082/ljflJK'
   }
 
   constructor () {
@@ -72,17 +76,18 @@ export default class extends wepy.app {
   }
 
   onLaunch() {
-    // 获取openid是否注册过
-    this.login()
+    console.log('onLaunch')
     wepy.getUserInfo({
       success (res) {
-        console.log(res)
+        console.log('userInfo', res)
         this.globalData.userInfo = res.userInfo
       },
-      fail: (res) =>{
+      fail (res) {
         console.log(res)
       }
     })
+    // 获取openid是否注册过
+    // this.login()
   }
 
   sleep (s) {
@@ -100,12 +105,12 @@ export default class extends wepy.app {
 
   getUserInfo(cb) {
     const that = this
-    if (this.globalData.userInfo) {
-      return this.globalData.userInfo
-    }
+    // if (this.globalData.userInfo) {
+    //   return this.globalData.userInfo
+    // }
     wepy.getUserInfo({
       success (res) {
-        console.log(res)
+        console.log('userInfo', res)
         that.globalData.userInfo = res.userInfo
         cb && cb(res.userInfo)
       }
@@ -113,23 +118,24 @@ export default class extends wepy.app {
   }
 
   login () {
+    let _this = this
     wepy.login({
      success: (res) => {
         const code = res.code
-        console.log(code)
-        // -----------------------------------login拿到code换取session_key 获取手机号用
-        //发送请求获取opendId
-        // wepy.request({
-        //   url: url + '/wx/admin/opendId',
-        //   data: {},
-        //   header: {
-        //     'content-type': 'application/json'
-        //   },
-        //   success: function(res) {
-        //     const openid = res.data.openid //返回openid
-        //     console.log(openid)
-        //   }
-        // })
+        // console.log(code)
+        // 发送请求获取opendId
+        wepy.request({
+          url: this.globalData.qrurl + '/getOpen_id?code=' + code,
+          data: {},
+          header: {
+            'content-type': 'application/json'
+          },
+          success: (res) => {
+            console.log(res.data.openid)
+            _this.globalData.openid = res.data.openid
+            _this.globalData.ifSigned = 1 // res.data.code
+          }
+        })
       }
     })
   }

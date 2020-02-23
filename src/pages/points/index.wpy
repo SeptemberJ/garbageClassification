@@ -1,0 +1,182 @@
+<template>
+<view>
+  <view class="container" wx:if="{{curLanguage == 'Chinese'}}">
+    <!-- <view class='language'>
+      切换语言：
+      <view class='selectBlock'>
+        <Select id="select"/>
+      </view>
+    </view> -->
+    <view class="PointsTop">
+      <view class="Item">
+        <text>0</text>
+        <text>账户余额</text>
+      </view>
+      <view class="Cumulative">
+        <view class="Item">
+          <text>0</text>
+          <text>账户累计收益</text>
+        </view>
+        <view class="Item HasLine">
+          <text>0</text>
+          <text>账户累计支出</text>
+        </view>
+      </view>
+    </view>
+    <view class="TabBar">
+      <picker bindchange="bindPickerChangeType" value="{{typeIndex}}" range="{{typeArray}}">
+        <view class="picker">
+          {{typeArray[typeIndex]}}
+        </view>
+      </picker>
+      <picker bindchange="bindPickerChangePerson" value="{{personIndex}}" range="{{personArray}}">
+        <view class="picker">
+          {{personArray[personIndex]}}
+        </view>
+      </picker>
+    </view>
+  </view>
+  <view class="container" wx:if="{{curLanguage == 'English'}}">
+    <!-- <view class='language'>
+      Choice language：
+      <view class='selectBlock'>
+        <Select id="select"/>
+      </view>
+    </view> --> 
+    <view class="PointsTop">
+      <view class="Item">
+        <text>0</text>
+        <text>Account balance</text>
+      </view>
+      <view class="Cumulative">
+        <view class="Item">
+          <text>0</text>
+          <text>Income</text>
+        </view>
+        <view class="Item HasLine">
+          <text>0</text>
+          <text>Expenditure</text>
+        </view>
+      </view>
+    </view>
+    <view class="TabBar">
+      <picker bindchange="bindPickerChangeType" value="{{typeIndex}}" range="{{typeArray}}">
+        <view class="picker">
+          {{typeArray[typeIndex]}}
+        </view>
+      </picker>
+      <picker bindchange="bindPickerChangePerson" value="{{personIndex}}" range="{{personArray}}">
+        <view class="picker">
+          {{personArray[personIndex]}}
+        </view>
+      </picker>
+    </view>
+  </view>
+</view>
+</template>
+<script>
+import wepy from 'wepy'
+import { connect } from 'wepy-redux'
+import Select from '@/components/select'
+@connect({
+  curLanguage (state) {
+    return state.changeLanguage.curLanguage.name
+  }
+}, {})
+export default class Points extends wepy.page {
+  config = {
+    navigationBarTitleText: ''
+  }
+  components = {
+    Select: Select
+  }
+  data  = {
+    typeArray: ['选择类型', '美国', '中国', '巴西', '日本'],
+    typeIndex: 0,
+    personIndex: 0,
+    personArray: ['选择人员', '张三', '李四', '王五', '赵六'],
+  }
+  onShow () {
+    if (this.curLanguage === 'Chinese') {
+      wepy.setNavigationBarTitle({
+        title:"我的积分"
+      })
+    } else {
+      wepy.setNavigationBarTitle({
+        title:"My points"
+      })
+    }
+  }
+
+  methods = {
+    bindPickerChangeType (e) {
+      this.typeIndex = e.detail.value
+    },
+    bindPickerChangePerson (e) {
+      this.personIndex = e.detail.value
+    }
+  }
+  getPoints () {
+    wepy.request({
+      url: this.$parent.globalData.qrurl + '/sercode?userid=' + this.$parent.globalData.openid,
+      data: {},
+      header: {
+        'content-type': 'application/json'
+      },
+      success: (res) => {
+        
+      }
+    })
+  }
+}
+</script>
+<style>
+page {
+  background-color: #f5f5f5;
+}
+.language{
+  width: 100%;
+  height: 70rpx;
+  line-height: 70rpx;
+  background: #fff;
+  display: flex;
+  justify-content: flex-end;
+  font-size: 30rpx;
+}
+.selectBlock{
+  width: 80px;
+  height: 100%;
+}
+.PointsTop{
+  width: 100%;
+  height: 250rpx;
+  background-image: linear-gradient(to top, #a3bded 0%, #6991c7 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  color: #fff;
+}
+.PointsTop text{
+  display: block;
+}
+.Cumulative{
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+.Item{
+  padding: 10rpx 40rpx;
+}
+.HasLine{
+  border-left: 2rpx solid #fff;
+}
+.TabBar{
+  width: 100%;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background: #fff;
+}
+</style>

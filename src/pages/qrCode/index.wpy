@@ -13,7 +13,8 @@
         <image style="width: 100rpx; height: 100rpx; border-radius: 50%;" mode="scaleToFill" src="{{avatarUrl}}"></image>
       </view>
       <text class="Tips">扫描下方的二维码开始投递</text>
-      <image style="width: 300rpx; height: 300rpx;" mode="scaleToFill" src="../../images/code.png"></image>
+      <canvas style="width: 200px; height: 200px;" canvas-id="myQrcode"></canvas>
+     <!--  <image style="width: 300rpx; height: 300rpx;" mode="scaleToFill" src="../../images/code.png"></image> -->
     </view>  
   </view>
   <view class="container" wx:if="{{curLanguage == 'English'}}">
@@ -29,7 +30,7 @@
         <image style="width: 100rpx; height: 100rpx; border-radius: 50%;" mode="scaleToFill" src="{{avatarUrl}}"></image>
       </view>
       <text class="Tips">Scan the QR code below to start delivery</text>
-      <image style="width: 300rpx; height: 300rpx;" mode="scaleToFill" src="../../images/code.png"></image>
+      <canvas style="width: 200px; height: 200px;" canvas-id="myQrcode"></canvas>
     </view>  
   </view>
 </view>
@@ -38,6 +39,7 @@
 import wepy from 'wepy'
 import { connect } from 'wepy-redux'
 import Select from '@/components/select'
+import drawQrcode from 'weapp-qrcode'
 @connect({
   curLanguage (state) {
     return state.changeLanguage.curLanguage.name
@@ -51,9 +53,9 @@ export default class QrCode extends wepy.page {
     Select: Select
   }
   computed  = {
-    avatarUrl () {
-      return this.$parent.globalData.userInfo.avatarUrl
-    }
+    // avatarUrl () {
+    //   return this.$parent.globalData.userInfo.avatarUrl
+    // }
   }
   onShow () {
     if (this.curLanguage === 'Chinese') {
@@ -65,6 +67,12 @@ export default class QrCode extends wepy.page {
         title:"My launch code"
       })
     }
+    drawQrcode({
+      width: 200,
+      height: 180,
+      canvasId: 'myQrcode',
+      text: this.$parent.globalData.openid
+    })
   }
   watch = {
     curLanguage (newValue, oldValue) {
@@ -81,6 +89,18 @@ export default class QrCode extends wepy.page {
   }
 
   methods = {
+  }
+  getPoints () {
+    wepy.request({
+      url: this.$parent.globalData.qrurl + '/sercode?userid=' + this.$parent.globalData.openid,
+      data: {},
+      header: {
+        'content-type': 'application/json'
+      },
+      success: (res) => {
+        
+      }
+    })
   }
 }
 </script>

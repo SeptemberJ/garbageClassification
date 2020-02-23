@@ -13,18 +13,18 @@
         autoplay="true" interval="2000" duration="500">
         <block wx:for="{{banners}}" wx:key="*this">
           <swiper-item>
-            <image style="width: 100%; height: 200px; background-color: #eeeeee;" mode="scaleToFill" src="{{item}}"></image>
+            <image style="width: 100%; height: 200px; background-color: #eeeeee;" mode="scaleToFill" src="http://111.231.134.126:8082/upload/{{item.newpic}}"></image>
           </swiper-item>
         </block>
       </swiper>
     </view>
     <view class='recordBlock'>
-      <view class='recordItem'>
-        <text class='recordTit'>我的积分</text>
+      <view class='recordItem' @tap="toPoints">
+        <text class='recordTit'>我的积分 ></text>
         <view><text class='count'>0</text> 积分</view>
       </view>
-      <view class='recordItem'>
-        <text class='recordTit'>累计投递</text>
+      <view class='recordItem' @tap="toDelivery">
+        <text class='recordTit'>累计投递 ></text>
         <view><text class='count'>0</text> 次</view>
       </view>
     </view>
@@ -48,12 +48,12 @@
       </swiper>
     </view>
     <view class='recordBlock'>
-      <view class='recordItem'>
-        <text class='recordTit'>My points</text>
+      <view class='recordItem' @tap="toPoints">
+        <text class='recordTit'>My points ></text>
         <view><text class='count'>0</text> points</view>
       </view>
-      <view class='recordItem'>
-        <text class='recordTit'>Cumulative delivery</text>
+      <view class='recordItem' @tap="toDelivery">
+        <text class='recordTit'>Cumulative delivery ></text>
         <view><text class='count'>0</text> times</view>
       </view>
     </view>
@@ -87,6 +87,8 @@ export default class Index extends wepy.page {
   events = {
   }
   onShow () {
+    this.getOrderList()
+    this.getPoints()
     if (this.curLanguage === 'Chinese') {
       wepy.setNavigationBarTitle({
         title:"主页"
@@ -114,7 +116,41 @@ export default class Index extends wepy.page {
   methods = {
     changeLanguage (res) {
       console.log(res)
+    },
+    toPoints () {
+      wepy.navigateTo({
+        url: '../points/index'
+      })
+    },
+    toDelivery () {
+      wepy.navigateTo({
+        url: '../delivery/index'
+      })
     }
+  }
+  getOrderList () {
+    wepy.request({
+      url: this.$parent.globalData.qrurl + '/bannerlist',
+      data: {},
+      header: {
+        'content-type': 'application/json'
+      },
+      success: (res) => {
+        this.banners = res.data.list
+      }
+    })
+  }
+  getPoints () {
+    wepy.request({
+      url: this.$parent.globalData.qrurl + '/seruserpoints?userid=' + this.$parent.globalData.openid,
+      data: {},
+      header: {
+        'content-type': 'application/json'
+      },
+      success: (res) => {
+        
+      }
+    })
   }
 }
 </script>
