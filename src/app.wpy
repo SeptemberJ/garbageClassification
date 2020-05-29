@@ -31,7 +31,7 @@ export default class extends wepy.app {
     tabBar: {
       color: "#000",
       selectedColor: "#3498db",
-      borderStyle: "#efefef",
+      borderStyle: "white",
       backgroundColor: "#fff",
       list: [
         {
@@ -67,6 +67,7 @@ export default class extends wepy.app {
     openid: null,
     ifSigned: false, // 0 - 没有注册 1 - 注册过
     session_key: null,
+    // qrurl: 'http://172.16.52.215:8081/ljflJK'
     qrurl: 'http://111.231.134.126:8082/ljflJK'
   }
 

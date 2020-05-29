@@ -92,7 +92,7 @@ export default class MyIndex extends wepy.page {
   }
   computed  = {
     avatarUrl () {
-      return this.$parent.globalData.userInfo.avatarUrl
+      return '../../../images/avatar.png' // this.$parent.globalData.userInfo.avatarUrl || '../../../images/avatar.png'
     }
   }
   onShow () {
