@@ -7,10 +7,15 @@
         <Select id="select"/>
       </view>
     </view> -->
-    <view class="CodeInfo">
+    <view wx-if="{{ !phoneNumber}}" style="width:100%;">
+      <button @tap="toSign" style="width: 200px;background:#1296db;font-size:32rpx;color:#fff;border-radius:0;margin:80rpx auto;">微信快捷注册</button>
+    </view>
+    <view class="CodeInfo" wx-if="{{ phoneNumber}}">
       <view class="TitBar">
-        <text>18234567890</text>
-        <image style="width: 100rpx; height: 100rpx; border-radius: 50%;" mode="scaleToFill" src="{{avatarUrl}}"></image>
+        <text>{{ phoneNumber }}</text>
+        <view style="width: 100rpx; height: 100rpx; border-radius: 50%;overflow:hidden">
+          <open-data type="userAvatarUrl" ></open-data>
+        </view>
       </view>
       <text class="Tips">扫描下方的二维码开始投递</text>
       <canvas style="width: 200px; height: 200px;" canvas-id="myQrcode"></canvas>
@@ -24,10 +29,15 @@
         <Select id="select"/>
       </view>
     </view> -->
-    <view class="CodeInfo">
+    <view wx-if="{{ !phoneNumber}}" style="width:100%;">
+      <button @tap="toSign" style="width: 200px;background:#1296db;font-size:32rpx;color:#fff;border-radius:0;margin:80rpx auto;">sign up</button>
+    </view>
+    <view class="CodeInfo" wx-if="{{ phoneNumber}}">
       <view class="TitBar">
-        <text>18234567890</text>
-        <image style="width: 100rpx; height: 100rpx; border-radius: 50%;" mode="scaleToFill" src="{{avatarUrl}}"></image>
+        <text>{{ phoneNumber }}</text>
+        <view style="width: 100rpx; height: 100rpx; border-radius: 50%;overflow:hidden">
+          <open-data type="userAvatarUrl" ></open-data>
+        </view>
       </view>
       <text class="Tips">Scan the QR code below to start delivery</text>
       <canvas style="width: 200px; height: 200px;" canvas-id="myQrcode"></canvas>
@@ -43,7 +53,7 @@ import drawQrcode from 'weapp-qrcode'
 @connect({
   curLanguage (state) {
     return state.changeLanguage.curLanguage.name
-  }
+  },
 }, {})
 export default class QrCode extends wepy.page {
   config = {
@@ -53,11 +63,12 @@ export default class QrCode extends wepy.page {
     Select: Select
   }
   computed  = {
-    // avatarUrl () {
-    //   return this.$parent.globalData.userInfo.avatarUrl
-    // }
+    phoneNumber () {
+      return this.$parent.globalData.phoneNumber
+    }
   }
   onShow () {
+    console.log(this)
     if (this.curLanguage === 'Chinese') {
       wepy.setNavigationBarTitle({
         title:"我的投放码"
@@ -71,7 +82,7 @@ export default class QrCode extends wepy.page {
       width: 200,
       height: 180,
       canvasId: 'myQrcode',
-      text: this.$parent.globalData.openid
+      text: this.phoneNumber
     })
   }
   watch = {
@@ -89,18 +100,11 @@ export default class QrCode extends wepy.page {
   }
 
   methods = {
-  }
-  getPoints () {
-    wepy.request({
-      url: this.$parent.globalData.qrurl + '/sercode?userid=' + this.$parent.globalData.openid,
-      data: {},
-      header: {
-        'content-type': 'application/json'
-      },
-      success: (res) => {
-        
-      }
-    })
+    toSign () {
+      wepy.navigateTo({
+        url: '../Sign'
+      })
+    }
   }
 }
 </script>
@@ -123,7 +127,7 @@ page {
 }
 .CodeInfo{
   width: 62%;
-  height: 700rpx;
+  padding: 10px 0;
   background: #fff;
   margin: 0 auto;
   border: 1px solid #ebeef5;

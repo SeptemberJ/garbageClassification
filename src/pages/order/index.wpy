@@ -7,12 +7,15 @@
         <Select id="select"/>
       </view>
     </view> -->
-    <view class="TabBar">
+    <view wx-if="{{ !phoneNumber}}" style="width:100%;">
+      <button @tap="toSign" style="width: 200px;background:#1296db;font-size:32rpx;color:#fff;border-radius:0;margin:80rpx auto;">微信快捷注册</button>
+    </view>
+    <view class="TabBar" wx-if="{{ phoneNumber}}">
       <view class="{{orderType == 0 ? 'active' : ''}}" @tap="changeTab(0)">进行中</view>
       <view class="{{orderType == 1 ? 'active' : ''}}" @tap="changeTab(1)">已完成</view>
       <view class="{{orderType == 2 ? 'active' : ''}}" @tap="changeTab(2)">交易取消</view>
     </view>
-    <view class="OrderList">
+    <view class="OrderList" wx-if="{{ phoneNumber}}">
       <view class="EmptyBlock" wx:if="{{orderList.length == 0}}">
         <image src="../../images/box-empty.png"></image>
         <text>暂无订单记录</text>
@@ -37,12 +40,15 @@
         <Select id="select"/>
       </view>
     </view> -->
-    <view class="TabBar">
+    <view wx-if="{{ !phoneNumber}}" style="width:100%;">
+      <button @tap="toSign" style="width: 200px;background:#1296db;font-size:32rpx;color:#fff;border-radius:0;margin:80rpx auto;">sign up</button>
+    </view>
+    <view class="TabBar" wx-if="{{ phoneNumber}}">
       <view class="{{orderType == 0 ? 'active' : ''}}" @tap="changeTab(0)">In progress</view>
       <view class="{{orderType == 1 ? 'active' : ''}}" @tap="changeTab(1)">Completed</view>
       <view class="{{orderType == 2 ? 'active' : ''}}" @tap="changeTab(2)">Cancelled</view>
     </view>
-    <view class="OrderList">
+    <view class="OrderList" wx-if="{{ phoneNumber}}">
       <view class="EmptyBlock" wx:if="{{orderList.length == 0}}">
         <image src="../../images/box-empty.png"></image>
         <text>No order record yet</text>
@@ -79,6 +85,11 @@ export default class Order extends wepy.page {
     orderType: 0, // 1进行中，2已完成，3交易取消
     orderList: []
   }
+  computed  = {
+    phoneNumber () {
+      return this.$parent.globalData.phoneNumber
+    }
+  }
   components = {
     Select: Select
   }
@@ -113,6 +124,11 @@ export default class Order extends wepy.page {
   methods = {
     changeTab (type) {
       this.orderType = type
+    },
+    toSign () {
+      wepy.navigateTo({
+        url: '../Sign'
+      })
     }
   }
 

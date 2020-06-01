@@ -8,8 +8,10 @@
       </view>
     </view> -->
     <view class="UserInfo">
-      <image style="width: 100rpx; height: 100rpx; border-radius: 50%;" mode="scaleToFill" src="{{avatarUrl}}"></image>
-      <text class="PhoneBlock">18234567890</text>
+      <view style="width: 100rpx; height: 100rpx; border-radius: 50%;overflow:hidden">
+        <open-data type="userAvatarUrl" ></open-data>
+      </view>
+      <text class="PhoneBlock">{{ phoneNumber }}</text>
     </view>
     <view class="Lists">
       <view class='itemBar' @tap="toAddress">
@@ -26,16 +28,14 @@
         </view>
         <image src="../../../images/arrow-right.png"></image>
       </view>
-      <view class='itemBar' @tap="toSetting">
+      <!-- <view class='itemBar' @tap="toSetting">
         <view class="RightTxt">
           <image src="../../../images/setting.png"></image>
             <text>设置</text>
         </view>
         <image src="../../../images/arrow-right.png"></image>
-      </view>
+      </view> -->
     </view>
-    <!-- <button open-type="getUserInfo">123</button> -->
-    <!-- <button open-type="getPhoneNumber" bindgetphonenumber="getPhoneNumber">获取手机号</button> -->
   </view>
   <view wx:if="{{curLanguage == 'English'}}" class="container">
     <!-- <view class='language'>
@@ -45,8 +45,10 @@
       </view>
     </view> -->
     <view class="UserInfo">
-      <image style="width: 100rpx; height: 100rpx; border-radius: 50%;" mode="scaleToFill" src="{{avatarUrl}}"></image>
-      <text class="PhoneBlock">18234567890</text>
+      <view style="width: 100rpx; height: 100rpx; border-radius: 50%;overflow:hidden">
+        <open-data type="userAvatarUrl" ></open-data>
+      </view>
+      <text class="PhoneBlock">{{ phoneNumber }}</text>
     </view>
     <view class="Lists">
       <view class='itemBar' @tap="toAddress">
@@ -63,13 +65,13 @@
         </view>
         <image src="../../../images/arrow-right.png"></image>
       </view>
-      <view class='itemBar' @tap="toSetting">
+      <!-- <view class='itemBar' @tap="toSetting">
         <view class="RightTxt">
           <image src="../../../images/setting.png"></image>
             <text>Setting</text>
         </view>
         <image src="../../../images/arrow-right.png"></image>
-      </view>
+      </view> -->
     </view>
   </view>
 </view>
@@ -91,6 +93,9 @@ export default class MyIndex extends wepy.page {
     Select: Select
   }
   computed  = {
+    phoneNumber () {
+      return this.$parent.globalData.phoneNumber
+    },
     avatarUrl () {
       return '../../../images/avatar.png' // this.$parent.globalData.userInfo.avatarUrl || '../../../images/avatar.png'
     }
@@ -124,14 +129,26 @@ export default class MyIndex extends wepy.page {
 
   methods = {
     toAddress () {
-      wepy.navigateTo({
-        url: '../address/index'
-      })
+      if (!this.phoneNumber) {
+        wepy.navigateTo({
+          url: '../../Sign'
+        })
+      } else {
+        wepy.navigateTo({
+          url: '../address/index'
+        })
+      }
     },
     toAboutUs () {
-      wepy.navigateTo({
-        url: '../aboutUs/index'
-      })
+      if (!this.phoneNumber) {
+        wepy.navigateTo({
+          url: '../../Sign'
+        })
+      } else {
+        wepy.navigateTo({
+          url: '../aboutUs/index'
+        })
+      }
     },
     toSetting () {
       // wepy.navigateTo({

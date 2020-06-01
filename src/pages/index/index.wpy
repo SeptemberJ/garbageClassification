@@ -21,11 +21,11 @@
     <view class='recordBlock'>
       <view class='recordItem' @tap="toPoints">
         <text class='recordTit'>我的积分 ></text>
-        <view><text class='count'>0</text> 积分</view>
+        <view><text class='count'>{{ points }}</text> 积分</view>
       </view>
       <view class='recordItem' @tap="toDelivery">
         <text class='recordTit'>累计投递 ></text>
-        <view><text class='count'>0</text> 次</view>
+        <view><text class='count'>{{ delivery }}</text> 次</view>
       </view>
     </view>
   </view>
@@ -50,11 +50,11 @@
     <view class='recordBlock'>
       <view class='recordItem' @tap="toPoints">
         <text class='recordTit'>My points ></text>
-        <view><text class='count'>0</text> points</view>
+        <view><text class='count'>{{ points }}</text> points</view>
       </view>
       <view class='recordItem' @tap="toDelivery">
         <text class='recordTit'>Cumulative delivery ></text>
-        <view><text class='count'>0</text> times</view>
+        <view><text class='count'>{{ delivery }}</text> times</view>
       </view>
     </view>
   </view>
@@ -75,19 +75,24 @@ export default class Index extends wepy.page {
     navigationBarTitleText: ''
   }
   data = {
+    points: 0,
+    delivery: 0,
     banners: ['../../images/1.jpg', '../../images/2.jpg', '../../images/3.jpg'],
     curLang: {
       id: '001',
       name: 'English'
     }
   }
+  computed  = {
+    phoneNumber () {
+      return this.$parent.globalData.phoneNumber
+    }
+  }
   components = {
     Select: Select
   }
-  events = {
-  }
   onShow () {
-    this.getOrderList()
+    this.getBanner()
     this.getPoints()
     if (this.curLanguage === 'Chinese') {
       wepy.setNavigationBarTitle({
@@ -118,17 +123,29 @@ export default class Index extends wepy.page {
       console.log(res)
     },
     toPoints () {
-      wepy.navigateTo({
-        url: '../points/index'
-      })
+      if (!this.phoneNumber) {
+        wepy.navigateTo({
+          url: '../Sign'
+        })
+      } else {
+        wepy.navigateTo({
+          url: '../points/index'
+        })
+      }
     },
     toDelivery () {
-      wepy.navigateTo({
-        url: '../delivery/index'
-      })
+      if (!this.phoneNumber) {
+        wepy.navigateTo({
+          url: '../Sign'
+        })
+      } else {
+        wepy.navigateTo({
+          url: '../delivery/index'
+        })
+      }
     }
   }
-  getOrderList () {
+  getBanner () {
     wepy.request({
       url: this.$parent.globalData.qrurl + '/bannerlist',
       data: {},
@@ -136,10 +153,14 @@ export default class Index extends wepy.page {
         'content-type': 'application/json'
       },
       success: (res) => {
-        this.banners = res.data.list.map(item => {
-          return "http://111.231.134.126:8082/ljfl/img/server/" + item.newpic
+        // this.banners = res.data.list.map(item => {
+        //   return "http://111.231.134.126:8082/ljfl/img/server/" + item.newpic
+        // })
+        this.setData({
+          banners: res.data.list.map(item => {
+            return this.$parent.globalData.imgUrl + item.newpic
+          })
         })
-        console.log(this.banners)
       }
     })
   }
@@ -151,7 +172,12 @@ export default class Index extends wepy.page {
         'content-type': 'application/json'
       },
       success: (res) => {
-        
+        if (res.data.code == 1) {
+          this.setData({
+            points: res.data.balance,
+            delivery: res.data.income
+          })
+        }
       }
     })
   }

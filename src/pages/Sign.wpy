@@ -38,7 +38,7 @@
         <text>Phone</text>
         <input class="weui-input" placeholder="Please enter your mobile number" @input='changePhone' value='{{phone}}'/>
       </view> -->
-      <button open-type="getUserInfo" bindgetuserinfo='bindGetUserInfo' style="background:#1296db;font-size:32rpx;color:#fff;border-radius:0;margin-top:80rpx;">sign up</button>
+      <button open-type="getPhoneNumber" bindgetphonenumber='getPhoneNumber' style="background:#1296db;font-size:32rpx;color:#fff;border-radius:0;margin-top:80rpx;">sign up</button>
     </view>
   </view>
   <toast />
@@ -99,34 +99,28 @@
         this.$apply()
       },
       getPhoneNumber (res) {
-        console.log(res)
+        let _this = this
+        let str = this.$parent.globalData.qrurl + '/getPhone?encryptedData=' + res.detail.encryptedData + '&iv=' + res.detail.iv + '&session_key=' + this.$parent.globalData.session_key
         if (res.detail.errMsg === 'getPhoneNumber:ok') {
           wepy.request({
-            url: this.$parent.globalData.qrurl + '/getAuthPhone?encryptedData=' + res.detail.encryptedData + '&iv=' + res.detail.iv + '&session_key=' + this.$parent.globalData.session_key,
+            url: str.replace(/\+/g,'%2B'),
             data: {},
             success: (res) => {
-              console.log(res.data)
-              // self.$apply()
+              if (res.data.phoneNumber) {
+                _this.$parent.globalData.phoneNumber = res.data.phoneNumber
+                this.sign(res.data.phoneNumber)
+              } else {
+                this.$invoke('toast', 'show', {
+                  title: this.curLanguage === 'Chinese' ? '手机号获取失败!' : 'Mobile number acquisition failed!',
+                  img: '../images/attentionW.png'
+                })
+              }
             },
             fali: (res) => {
               console.log(res)
             }
           })
-          // 注册
-          // wepy.request({
-          //   url: this.$parent.globalData.qrurl + '/userinsert',
-          //   method: 'POST',
-          //   data: {nickname: this.$parent.globalData.userInfo., head_img: '', fmobile: '', open_id: this.$parent.globalData.openid},
-          //   success: (res) => {
-          //     console.log(res.data)
-          //     // self.$apply()
-          //   },
-          //   fali: (res) => {
-          //     console.log(res)
-          //   }
-          // })
         } else {
-          console.log('fail')
           this.$invoke('toast', 'show', {
             title: this.curLanguage === 'Chinese' ? '为了更好的使用请先同意授权信息!' : 'For better use, please agree to the authorization information first!',
             img: '../images/attentionW.png'
@@ -134,12 +128,34 @@
         }
       }
     }
+    sign (phoneNumber) {
+      wepy.request({
+        url: this.$parent.globalData.qrurl + '/userinsert?nickname=0&head_img=0&fmobile=' + phoneNumber + '&open_id=' + this.$parent.globalData.openid,
+        method: 'POST',
+        data: {},
+        success: (res) => {
+          if (res.data.code == 2) {
+            wepy.switchTab({
+              url: './index/index'
+            })
+          } else {
+            this.$invoke('toast', 'show', {
+              title: this.curLanguage === 'Chinese' ? '用户注册失败!' : 'User registration failed!',
+              img: '../images/attentionW.png'
+            })
+          }
+        },
+        fali: (res) => {
+          console.log(res)
+        }
+      })
+    }
     login () {
       let _this = this
       wepy.login({
        success: (res) => {
           const code = res.code
-          // console.log(code)
+          console.log(res)
           // 发送请求获取opendId
           wepy.request({
             url: this.$parent.globalData.qrurl + '/getOpen_id?code=' + code,
@@ -148,14 +164,10 @@
               'content-type': 'application/json'
             },
             success: (res) => {
-              console.log(res.data.session_key)
               _this.$parent.globalData.openid = res.data.openid
               _this.$parent.globalData.session_key = res.data.session_key
+              _this.$parent.globalData.phoneNumber = res.data.fmobile
               if (res.data.code == 0) {
-                wepy.switchTab({
-                  url: './index/index'
-                })
-              } else {
                 if (this.curLanguage === 'Chinese') {
                   wepy.setNavigationBarTitle({
                     title:"注册"
@@ -165,6 +177,10 @@
                     title:"Sign"
                   })
                 }
+              } else if (res.data.code == 1) {
+                wepy.switchTab({
+                  url: './index/index'
+                })
               }
             }
           })

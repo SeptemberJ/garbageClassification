@@ -91,10 +91,24 @@ export default class Points extends wepy.page {
     Select: Select
   }
   data  = {
-    typeArray: ['选择类型', '美国', '中国', '巴西', '日本'],
     typeIndex: 0,
-    personIndex: 0,
-    personArray: ['选择人员', '张三', '李四', '王五', '赵六'],
+    personIndex: 0
+  }
+  computed  = {
+    personArray () {
+      if (this.curLanguage === 'Chinese') {
+        return ['选择人员', this.$parent.globalData.phoneNumber]
+      } else {
+        return ['Select type', this.$parent.globalData.phoneNumber]
+      }
+    },
+    typeArray () {
+      if (this.curLanguage === 'Chinese') {
+        return ['选择类型', '垃圾投递', '兑换消费', '管理员变更', '集中回收']
+      } else {
+        return ['Select type', 'Garbage deliver', 'Exchange consumption', 'Administrator change', 'Centralized recycling']
+      }
+    }
   }
   onShow () {
     if (this.curLanguage === 'Chinese') {
@@ -178,5 +192,9 @@ page {
   align-items: center;
   justify-content: space-around;
   background: #fff;
+}
+.TabBar picker{
+  width: 50%;
+  text-align: center;
 }
 </style>

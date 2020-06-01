@@ -67,14 +67,26 @@ export default class AddAddress extends wepy.page {
     navigationBarTitleText: ''
   }
   data = {
+    ifInsert: true,
+    addrId: '',
     userName: '',
     phone: '',
-    region: ['广东省', '广州市', '海珠区'],
-    customItem: '全部',
+    region: ['请选择省', '请选择市', '请选择区'],
     addrDetail: ''
   }
   components = {
     toast: Toast
+  }
+  onLoad (options) {
+    if (options.Address) {
+      let Info = JSON.parse(options.Address)
+      this.ifInsert = false
+      this.userName = Info.fname
+      this.phone = Info.fmobile
+      this.region = [Info.sheng, Info.shi, Info.qu]
+      this.addrDetail = Info.address
+      this.addrId = Info.id
+    }
   }
   onShow () {
     if (this.curLanguage === 'Chinese') {
@@ -110,7 +122,6 @@ export default class AddAddress extends wepy.page {
       this.$apply()
     },
     bindRegionChange: function (e) {
-      console.log('picker发送选择改变，携带值为', e.detail.value)
       this.region = e.detail.value
     },
     changeAddrDetail (e) {
@@ -118,8 +129,22 @@ export default class AddAddress extends wepy.page {
       this.$apply()
     },
     addAddress () {
+      if (this.region[0] == '请选择省' || this.region[1] == '请选择市' || this.region[2] == '请选择区' || !this.userName || !this.phone || !this.addrDetail) {
+        this.$invoke('toast', 'show', {
+          title: this.curLanguage === 'Chinese' ? '请将信息填写完整!' : 'Please complete the information!',
+        })
+        return false
+      }
+      if (this.ifInsert) {
+        this.insert()
+      } else {
+        this.update()
+      }
+    }
+  }
+  insert () {
       wepy.request({
-        url: this.$parent.globalData.qrurl + '/updateuser',
+        url: this.$parent.globalData.qrurl + '/addressInsert?userid=' + this.$parent.globalData.openid + '&fname=' + this.userName + '&fmobile=' + this.phone + '&sheng=' + this.region[0] + '&shi=' + this.region[1] + '&qu=' + this.region[2] + '&address=' + this.addrDetail,
         method: 'POST',
         data: {
           userid: this.$parent.globalData.openid,
@@ -128,7 +153,6 @@ export default class AddAddress extends wepy.page {
           province: this.region[0],
           city: this.region[1],
           area: this.region[2],
-          communityname: '',
           address: this.addrDetail
         },
         header: {
@@ -138,18 +162,48 @@ export default class AddAddress extends wepy.page {
           if (res.data.code == 1) {
             this.$invoke('toast', 'show', {
               title: this.curLanguage === 'Chinese' ? '新增地址成功!' : 'Add address successfully!',
+              img: '../../../images/chenggong.png'
             })
-            wepy.navigateBack()
+            setTimeout( () => {wepy.navigateBack()}, 1000)
           } else {
             this.$invoke('toast', 'show', {
               title: this.curLanguage === 'Chinese' ? '新增地址失败!' : 'Failed to add address!',
+              img: '../../../../images/attentionW.png'
+            })
+          }
+        }
+      })
+    }
+    update () {
+      wepy.request({
+        url: this.$parent.globalData.qrurl + '/addressUpdate?id=' + this.addrId + '&fname=' + this.userName + '&fmobile=' + this.phone + '&sheng=' + this.region[0] + '&shi=' + this.region[1] + '&qu=' + this.region[2] + '&address=' + this.addrDetail,
+        method: 'POST',
+        data: {
+          addrId: this.addrId,
+          fname: this.userName,
+          phone: this.phone,
+          province: this.region[0],
+          city: this.region[1],
+          area: this.region[2],
+          address: this.addrDetail
+        },
+        header: {
+          'content-type': 'application/json'
+        },
+        success: (res) => {
+          if (res.data.code == 1) {
+            this.$invoke('toast', 'show', {
+              title: this.curLanguage === 'Chinese' ? '修改地址成功!' : 'Address modified successfully!',
+            })
+          } else {
+            this.$invoke('toast', 'show', {
+              title: this.curLanguage === 'Chinese' ? '修改地址失败!' : 'Failed to modify address!',
               img: '../../../images/attentionW.png'
             })
           }
         }
-    })
+      })
     }
-  }
 }
 </script>
 <style>

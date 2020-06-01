@@ -7,15 +7,15 @@
         <text>您还未添加任何地址</text>
       </view>
       <view class="Address" wx:if="{{addressList.length > 0}}">
-        <view class="AddressItem" wx:for="{{addressList}}" wx:key="{{index}}">
-          <text>张三 18234567890</text>
-          <text style="color: #515151;">上海市宝山区丰宝苑锦秋路1600号</text>
+        <view class="AddressItem" wx:for="{{addressList}}" wx:for-key="idx" wx:for-item="Address">
+          <text>{{ Address.fname}} {{ Address.fmobile}}</text>
+          <text style="color: #515151;">{{ Address.sheng }}{{ Address.shi }}{{ Address.qu }}{{ Address.address }}</text>
           <view class="EditBlock">
-            <view class="EditItem">
+            <view class="EditItem" @tap="toEdit('{{ Address }}')">
               <image src="../../../images/editor-line.png"></image>
             编辑
             </view>
-            <view class="EditItem">
+            <view class="EditItem" @tap="removeAddr('{{ Address.id }}')">
               <image src="../../../images/delete.png"></image>
             删除
             </view>
@@ -32,15 +32,15 @@
         <text>You haven't added any addresses yet</text>
       </view>
       <view class="Address" wx:if="{{addressList.length > 0}}">
-        <view class="AddressItem" wx:for="{{addressList}}" wx:key="{{index}}">
-          <text>Pamela 18234567890</text>
-          <text style="color: #515151;">xxxxxxxxxxxxxxxxxx</text>
+        <view class="AddressItem" wx:for="{{addressList}}" wx:for-key="idx" wx:for-item="Address">
+          <text>{{ Address.fname}} {{ Address.fmobile}}</text>
+          <text style="color: #515151;">{{ Address.sheng }}{{ Address.shi }}{{ Address.qu }}{{ Address.address }}</text>
           <view class="EditBlock">
-            <view class="EditItem">
+            <view class="EditItem" @tap="toEdit('{{ Address }}')">
               <image src="../../../images/editor-line.png"></image>
             Edit
             </view>
-            <view class="EditItem">
+            <view class="EditItem" @tap="removeAddr('{{ Address.id }}')">
               <image src="../../../images/delete.png"></image>
             Delete
             </view>
@@ -50,10 +50,12 @@
       <view class="AddBlock" @tap="toAdd">Add</view>
     </view>
   </view>
+  <toast />
 </view>
 </template>
 <script>
 import wepy from 'wepy'
+import Toast from 'wepy-com-toast'
 import { connect } from 'wepy-redux'
 @connect({
   curLanguage (state) {
@@ -65,9 +67,13 @@ export default class Address extends wepy.page {
     navigationBarTitleText: ''
   }
   data = {
-    addressList: [1, 2]
+    addressList: []
+  }
+  components = {
+    toast: Toast
   }
   onShow () {
+    this.getAddress()
     if (this.curLanguage === 'Chinese') {
       wepy.setNavigationBarTitle({
         title:"我的地址"
@@ -96,7 +102,65 @@ export default class Address extends wepy.page {
       wepy.navigateTo({
         url: '../address/addAddress'
       })
+    },
+    toEdit (Address) {
+      wepy.navigateTo({
+        url: '../address/addAddress?Address=' + JSON.stringify(Address)
+      })
+    },
+    removeAddr (addrId) {
+      wepy.request({
+        url: this.$parent.globalData.qrurl + '/deladdress?id=' + addrId,
+        data: {},
+        header: {
+          'content-type': 'application/json'
+        },
+        success: (res) => {
+          if (res.data.code == 0) {
+            this.$invoke('toast', 'show', {
+              title: this.curLanguage === 'Chinese' ? '删除成功!' : 'Delete succeeded!',
+              img: '../../../images/chenggong.png'
+            })
+          }
+          this.getAddress()
+        }
+      })
+      // wepy.showModal({
+      //   title: '提示',
+      //   content: '是否确定删除该地址？',
+      //   success: (res) => {
+      //     if(res.confirm){
+      //       console.log('confirm------[')
+      //       // wepy.request({
+      //       //   url: this.$parent.globalData.qrurl + '/deladdress?id=' + addrId,
+      //       //   data: {},
+      //       //   header: {
+      //       //     'content-type': 'application/json'
+      //       //   },
+      //       //   success: (res) => {
+                
+      //       //   }
+      //       // })
+      //     } else {
+      //       console.log('esle------[')
+      //     }
+      //   }
+      // })
     }
+  }
+  getAddress () {
+    wepy.request({
+      url: this.$parent.globalData.qrurl + '/addresslist?userid=' + this.$parent.globalData.openid,
+      data: {},
+      header: {
+        'content-type': 'application/json'
+      },
+      success: (res) => {
+        this.setData({
+          addressList: res.data.list
+        })
+      }
+    })
   }
 }
 </script>
